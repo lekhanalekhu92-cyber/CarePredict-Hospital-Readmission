@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CarePredict | Hospital Readmission Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6f8;
+            color: #182b3a;
+        }
+
+        .topbar {
+            height: 75px;
+            padding: 0 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-bottom: 1px solid #e6ecef;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: bold;
+            color: #167c80;
+        }
+
+        .brand span {
+            color: #263e50;
+        }
+
+        .nav-text {
+            color: #647887;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 45px auto;
+            padding: 0 20px;
+        }
+
+        .heading {
+            margin-bottom: 30px;
+        }
+
+        .heading h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .heading p {
+            color: #71818d;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.04);
+        }
+
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8eef1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 9px;
+            color: #344b5b;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #dce4e9;
+            border-radius: 7px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #167c80;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 35px;
+        }
+
+        button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .predict-btn {
+            background: #167c80;
+            color: white;
+            flex: 1;
+        }
+
+        .predict-btn:hover {
+            background: #11666a;
+        }
+
+        .reset-btn {
+            background: #edf2f4;
+            color: #344b5b;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            background: #f0f8f8;
+            border: 1px solid #cce5e4;
+        }
+
+        .result h2 {
+            margin-bottom: 15px;
+            font-size: 21px;
+        }
+
+        .result p {
+            margin: 12px 0;
+            color: #405563;
+        }
+
+        .probability {
+            font-size: 32px;
+            font-weight: bold;
+            color: #167c80;
+            margin: 15px 0;
+        }
+
+        .high {
+            color: #c0392b;
+        }
+
+        .low {
+            color: #167c80;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff0ef;
+            color: #b42318;
+            border-radius: 7px;
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            color: #85939c;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #84929b;
+            font-size: 13px;
+        }
+
+        @media(max-width: 650px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .heading h1 {
+                font-size: 25px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">Care<span>Predict</span></div>
+    <div class="nav-text">Hospital Readmission Prediction System</div>
+</header>
+
+<main class="container">
+
+    <div class="heading">
+        <h1>Patient Readmission Prediction</h1>
+        <p>
+            Enter the patient's hospital and medical information
+            to predict their likelihood of hospital readmission.
+        </p>
+    </div>
+
+    <div class="card">
+
+        <h2 class="section-title">Patient Information</h2>
+
+        <form action="/predict" method="POST">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Patient Age</label>
+                    <select name="age" required>
+                        <option value="">Select age group</option>
+                        {% for a in ['[0-10)', '[10-20)', '[20-30)', '[30-40)', '[40-50)', '[50-60)', '[60-70)', '[70-80)', '[80-90)', '[90-100)'] %}
+                        <option value="{{ a }}" {% if form_data and form_data.get('age') == a %}selected{% endif %}>
+                            {{ a }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time in Hospital (Days)</label>
+                    <input type="number" name="time_in_hospital"
+                        min="1" max="14" required
+                        value="{{ form_data.get('time_in_hospital', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Lab Procedures</label>
+                    <input type="number" name="num_lab_procedures"
+                        min="0" required
+                        value="{{ form_data.get('num_lab_procedures', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Procedures</label>
+                    <input type="number" name="num_procedures"
+                        min="0" required
+                        value="{{ form_data.get('num_procedures', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Medications</label>
+                    <input type="number" name="num_medications"
+                        min="0" required
+                        value="{{ form_data.get('num_medications', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Outpatient Visits</label>
+                    <input type="number" name="number_outpatient"
+                        min="0" required
+                        value="{{ form_data.get('number_outpatient', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Emergency Visits</label>
+                    <input type="number" name="number_emergency"
+                        min="0" required
+                        value="{{ form_data.get('number_emergency', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Inpatient Visits</label>
+                    <input type="number" name="number_inpatient"
+                        min="0" required
+                        value="{{ form_data.get('number_inpatient', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Diagnoses</label>
+                    <input type="number" name="number_diagnoses"
+                        min="1" required
+                        value="{{ form_data.get('number_diagnoses', '') if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Insulin</label>
+                    <select name="insulin" required>
+                        <option value="">Select insulin status</option>
+                        {% for v in ['No', 'Steady', 'Up', 'Down'] %}
+                        <option value="{{ v }}" {% if form_data and form_data.get('insulin') == v %}selected{% endif %}>
+                            {{ v }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Medication Change</label>
+                    <select name="change" required>
+                        <option value="">Select option</option>
+                        {% for v in ['No', 'Ch'] %}
+                        <option value="{{ v }}" {% if form_data and form_data.get('change') == v %}selected{% endif %}>
+                            {{ 'No Change' if v == 'No' else 'Changed' }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Diabetes Medication</label>
+                    <select name="diabetesMed" required>
+                        <option value="">Select option</option>
+                        {% for v in ['Yes', 'No'] %}
+                        <option value="{{ v }}" {% if form_data and form_data.get('diabetesMed') == v %}selected{% endif %}>
+                            {{ v }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Admission Type</label>
+                    <select name="admission_type_id" required>
+                        <option value="">Select admission type</option>
+                        <option value="1" {% if form_data and form_data.get('admission_type_id') == '1' %}selected{% endif %}>Emergency</option>
+                        <option value="2" {% if form_data and form_data.get('admission_type_id') == '2' %}selected{% endif %}>Urgent</option>
+                        <option value="3" {% if form_data and form_data.get('admission_type_id') == '3' %}selected{% endif %}>Elective</option>
+                        <option value="4" {% if form_data and form_data.get('admission_type_id') == '4' %}selected{% endif %}>Newborn</option>
+                        <option value="5" {% if form_data and form_data.get('admission_type_id') == '5' %}selected{% endif %}>Not Available</option>
+                        <option value="6" {% if form_data and form_data.get('admission_type_id') == '6' %}selected{% endif %}>NULL</option>
+                        <option value="7" {% if form_data and form_data.get('admission_type_id') == '7' %}selected{% endif %}>Trauma Center</option>
+                        <option value="8" {% if form_data and form_data.get('admission_type_id') == '8' %}selected{% endif %}>Not Mapped</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="button-group">
+
+                <button type="submit" class="predict-btn">
+                    Predict Readmission Likelihood
+                </button>
+
+                <button type="reset" class="reset-btn">
+                    Clear Form
+                </button>
+
+            </div>
+
+        </form>
+
+        {% if error %}
+            <div class="error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if submitted %}
+
+        <div class="result">
+
+            <h2>Prediction Results</h2>
+
+            <p>Readmission Prediction:</p>
+
+            <h2 class="{% if result_type == 'high' %}high{% else %}low{% endif %}">
+                {{ prediction }}
+            </h2>
+
+            <p>Readmission Probability</p>
+
+            <div class="probability">
+                {{ "%.2f"|format(probability * 100) }}%
+            </div>
+
+            <p>
+                {% if result_type == 'high' %}
+                    The model indicates a higher likelihood of readmission.
+                {% else %}
+                    The model indicates a lower likelihood of readmission.
+                {% endif %}
+            </p>
+
+        </div>
+
+        {% endif %}
+
+        <div class="disclaimer">
+            Disclaimer: This system is an academic machine-learning
+            project. Predictions are estimates and should not replace
+            professional medical judgment.
+        </div>
+
+    </div>
+
+</main>
+
+<footer>
+    CarePredict | Hospital Readmission Prediction System
+</footer>
+
+</body>
+</html>

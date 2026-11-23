@@ -1,0 +1,27 @@
+{
+    "selected_model": "Logistic Regression",
+    "validation_results": {
+        "Random Forest": {
+            "threshold": 0.28,
+            "precision": 0.146,
+            "recall": 0.572,
+            "f1_score": 0.232,
+            "roc_auc": 0.612
+        },
+        "Logistic Regression": {
+            "threshold": 0.5,
+            "precision": 0.163,
+            "recall": 0.5,
+            "f1_score": 0.246,
+            "roc_auc": 0.637
+        }
+    },
+    "selected_threshold": 0.5,
+    "test_metrics": {
+        "accuracy": 0.672,
+        "precision": 0.156,
+        "recall": 0.472,
+        "f1_score": 0.235,
+        "roc_auc": 0.626
+    }
+}
